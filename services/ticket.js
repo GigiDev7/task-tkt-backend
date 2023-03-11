@@ -1,23 +1,10 @@
 const Ticket = require("../models/ticketSchema");
 
-exports.findTickets = async (query) => {
-  const filters = [];
-
-  if (query.date) {
-    filters.push({ date: new Date(query.date) });
-  }
-  if (query.eventName) {
-    filters.push({ eventName: { $regex: query.eventName, $options: "i" } });
-  }
-
-  if (!filters.length) {
-    return Ticket.find().populate("owner", "-password");
-  }
-
+exports.findTickets = async (eventId) => {
   const tickets = await Ticket.aggregate([
     {
       $match: {
-        $and: [...filters],
+        event: eventId,
       },
     },
     {
@@ -29,17 +16,32 @@ exports.findTickets = async (query) => {
       },
     },
     {
+      $lookup: {
+        from: "events",
+        foreignField: "_id",
+        localField: "event",
+        as: "event",
+      },
+    },
+    {
       $unwind: { path: "$owner" },
     },
     {
-      $unset: ["owner.password", "owner.__v", "__v"],
+      $unwind: { path: "$event" },
+    },
+    {
+      $unset: ["owner.password", "owner.__v", "__v", "event.__v"],
     },
   ]);
 
   return tickets;
 };
 
-exports.createTicket = async (ticketData, userId) => {
-  const newTicket = await Ticket.create({ ...ticketData, owner: userId });
+exports.createTicket = async (ticketData, userId, eventId) => {
+  const newTicket = await Ticket.create({
+    ...ticketData,
+    owner: userId,
+    event: eventId,
+  });
   return newTicket;
 };

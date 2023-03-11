@@ -11,10 +11,6 @@ const ticketSchema = new mongoose.Schema(
       ref: "Event",
       required: [true, "Event name is required"],
     },
-    date: {
-      type: Date,
-      required: [true, "Date is requried"],
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

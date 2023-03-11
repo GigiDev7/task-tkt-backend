@@ -1,10 +1,11 @@
+const mongoose = require("mongoose");
 const Ticket = require("../models/ticketSchema");
 
 exports.findTickets = async (eventId) => {
   const tickets = await Ticket.aggregate([
     {
       $match: {
-        event: eventId,
+        event: new mongoose.Types.ObjectId(eventId),
       },
     },
     {
@@ -37,9 +38,9 @@ exports.findTickets = async (eventId) => {
   return tickets;
 };
 
-exports.createTicket = async (ticketData, userId, eventId) => {
+exports.createTicket = async (price, userId, eventId) => {
   const newTicket = await Ticket.create({
-    ...ticketData,
+    price,
     owner: userId,
     event: eventId,
   });

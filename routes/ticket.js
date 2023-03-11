@@ -4,6 +4,6 @@ const { protectAuth } = require("../middlewares/protectAuth");
 
 const router = express.Router();
 
-router.route("/").get(getTickets).post(protectAuth, addTicket);
+router.route("/:eventId").get(getTickets).post(protectAuth, addTicket);
 
 module.exports = router;

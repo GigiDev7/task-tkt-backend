@@ -9,14 +9,18 @@ exports.protectAuth = (req, res, next) => {
 
   const token = req.headers.authorization.split(" ")[1];
   jwt.verify(token, "cdjasoejaosnceasoce13", async (err, decodedData) => {
-    if (err) {
-      throw new CustomError("AuthorizationError", "Invalid credentials");
+    try {
+      if (err) {
+        throw new CustomError("AuthorizationError", "Invalid credentials");
+      }
+      const user = await User.findById(decodedData.id, "-password");
+      if (!user) {
+        throw new CustomError("NotFounError", "User does not exist");
+      }
+      req.user = user;
+      next();
+    } catch (error) {
+      next(error);
     }
-    const user = await User.findById(decodedData.id, "-password");
-    if (!user) {
-      throw new CustomError("NotFounError", "User does not exist");
-    }
-    req.user = user;
-    next();
   });
 };

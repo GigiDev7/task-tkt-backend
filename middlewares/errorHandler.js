@@ -7,7 +7,10 @@ exports.errorHandler = (error, req, res, next) => {
     return res
       .status(404)
       .json({ message: error.message || "Something went wrong" });
-  } else if (error.name === "AuthenticationError") {
+  } else if (
+    error.name === "AuthenticationError" ||
+    error.name === "AuthorizationError"
+  ) {
     return res
       .status(403)
       .json({ message: error.message || "Something went wrong" });
